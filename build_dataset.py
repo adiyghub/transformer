@@ -36,4 +36,7 @@ class BuildDataset:
             self.letter_vocab.init_token,
             self.letter_vocab.eos_token,
         )
+        self.vocab_size = len(self.letter_vocab.ch2ix)
+        self.max_len = max([max([len(sentence[0]) for sentence in self.sentence_pairs_dataset]), 
+                    max([len(sentence[1]) for sentence in self.sentence_pairs_dataset])])
     

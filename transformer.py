@@ -8,17 +8,21 @@ from decoder import Decoder
 from utils import construct_mask
 
 class Transformer(nn.Module):
-    def __init__(self, embedding_dim=512, 
+    def __init__(self, source_dim, 
+                       target_dim,
+                       max_len,
+                       source_pad_idx,
+                       target_pad_idx,
+                       embedding_dim=512, 
                        n_heads=8, 
                        dropout_p=0.1):
         super(Transformer, self).__init__()
 
-        self.sentence_dataset = BuildDataset(TokenVocabulary)
-        self.source_dim = self.sentence_dataset.vocab_size
-        self.target_dim = self.sentence_dataset.vocab_size
-        self.max_len = self.sentence_dataset.max_len
-        self.source_pad_idx = self.sentence_dataset.ch2ix[TokenVocabulary().pad_token]
-        self.target_pad_idx = self.sentence_dataset.ch2ix[TokenVocabulary().pad_token]
+        self.source_dim = source_dim
+        self.target_dim = target_dim
+        self.max_len = max_len
+        self.source_pad_idx = source_pad_idx
+        self.target_pad_idx = target_pad_idx
         self.embedding_dim = embedding_dim
         self.dropout_p = dropout_p
         self.n_heads = n_heads

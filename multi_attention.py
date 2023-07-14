@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import math
 
 def attention_mech(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, n_heads: int, mask_matrix=None):
     batch_size = query.shape[0]

@@ -5,6 +5,7 @@ from vocabulary import TokenVocabulary
 from sequence_embedding import SequenceEmbedding
 from encoder import Encoder
 from decoder import Decoder
+from utils import construct_mask
 
 class Transformer(nn.Module):
     def __init__(self, embedding_dim=512, 

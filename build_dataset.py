@@ -29,14 +29,16 @@ class BuildDataset:
 
         self.token_vocab.build_vocabulary(self.source_file, self.target_file)
         
-        self.ch2ix = self.token_vocab.ch2ix 
+        self.ch2ix = self.token_vocab.ch2ix
+        print("Length of ch2ix after building vocabulary:", len(self.ch2ix))
+        self.vocab_size = len(set(self.token_vocab.ch2ix.values())) 
+         
         self.sentence_pairs_dataset = convert_source_target_list_to_tensors(
             self.token_vocab.source_target_list,
             self.token_vocab.ch2ix,
             self.token_vocab.init_token,
             self.token_vocab.eos_token,
         )
-        self.vocab_size = len(self.token_vocab.ch2ix)
         self.max_len = max([max([len(sentence[0]) for sentence in self.sentence_pairs_dataset]), 
                     max([len(sentence[1]) for sentence in self.sentence_pairs_dataset])])
     

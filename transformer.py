@@ -1,7 +1,7 @@
 import torch 
 import torch.nn as nn
 from build_dataset import BuildDataset
-from vocabulary import LetterVocabulary
+from vocabulary import TokenVocabulary
 from sequence_embedding import SequenceEmbedding
 from encoder import Encoder
 from decoder import Decoder
@@ -12,12 +12,12 @@ class Transformer(nn.Module):
                        dropout_p=0.1):
         super(Transformer, self).__init__()
 
-        self.sentence_dataset = BuildDataset(LetterVocabulary)
+        self.sentence_dataset = BuildDataset(TokenVocabulary)
         self.source_dim = self.sentence_dataset.vocab_size
         self.target_dim = self.sentence_dataset.vocab_size
         self.max_len = self.sentence_dataset.max_len
-        self.source_pad_idx = self.sentence_dataset.ch2ix[LetterVocabulary().pad_token]
-        self.target_pad_idx = self.sentence_dataset.ch2ix[LetterVocabulary().pad_token]
+        self.source_pad_idx = self.sentence_dataset.ch2ix[TokenVocabulary().pad_token]
+        self.target_pad_idx = self.sentence_dataset.ch2ix[TokenVocabulary().pad_token]
         self.embedding_dim = embedding_dim
         self.dropout_p = dropout_p
         self.n_heads = n_heads

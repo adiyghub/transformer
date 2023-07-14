@@ -3,7 +3,7 @@ import io
 import re
 
 
-class LetterVocabulary:
+class TokenVocabulary:
     def __init__(self, init_token="<sos>", eos_token="<eos>", pad_token="<pad>"):
         self.init_token = init_token
         self.eos_token = eos_token

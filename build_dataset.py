@@ -1,6 +1,6 @@
 from vocabulary import LetterVocabulary
 import torch
-
+import re
 
 def convert_source_target_list_to_tensors(
     source_target_pair, vocab_index, init_token, eos_token
@@ -11,7 +11,7 @@ def convert_source_target_list_to_tensors(
         for sentence in pair:
             tensor = torch.LongTensor(
                 [vocab_index[init_token]]
-                + [vocab_index[ch] for ch in sentence]
+                + [vocab_index[ch] for ch in re.findall(r"\w+|[^\s\w]+", sentence)]
                 + [vocab_index[eos_token]]
             )
             tensor_pair.append(tensor)

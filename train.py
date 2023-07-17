@@ -9,6 +9,7 @@ import re
 from vocabulary import TokenVocabulary
 from build_dataset import BuildDataset
 from transformer import Transformer
+from utils import construct_mask
 
 class CustomDataset(Dataset):
     def __init__(self, translation_pairs_tensor):

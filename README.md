@@ -13,3 +13,4 @@
 ```
 python train.py
 ```
+Running this will print training loss and prediction for test sentence at each epoch. As this is a toy model, predictions will not be sensible. 

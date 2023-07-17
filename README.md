@@ -12,5 +12,4 @@
 ## Run Instructions
 ```
 python train.py
-
 ```

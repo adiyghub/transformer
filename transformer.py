@@ -18,6 +18,8 @@ class Transformer(nn.Module):
                        dropout_p=0.1):
         super(Transformer, self).__init__()
 
+        assert embedding_dim % n_heads == 0, "n_heads should divide embedding_dim"
+
         self.source_dim = source_dim
         self.target_dim = target_dim
         self.max_len = max_len

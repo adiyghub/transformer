@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 import torch.optim as optim
+import re 
 
 from vocabulary import TokenVocabulary
 from build_dataset import BuildDataset

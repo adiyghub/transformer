@@ -8,3 +8,9 @@
 - [transformer.py](https://github.com/adiyghub/transformer/blob/main/transformer.py) Transformer class
 - [utils.py](https://github.com/adiyghub/transformer/blob/main/utils.py) Implementation of masks in source and target sequence
 - [train.py](https://github.com/adiyghub/transformer/blob/main/train.py) training script
+
+## Run Instructions
+```
+python train.py
+
+```

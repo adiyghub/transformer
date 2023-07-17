@@ -55,7 +55,7 @@ def train(model, train_dataloader, criterion, optimizer, clip):
 
     return epoch_loss
 
-def predict_text(text_batch, dataset, model):
+def predict_test_text(text_batch, dataset, model):
     tokenized_sentences = []
     for sentence in text_batch:
         tokens = re.findall(r"\w+|[^\s\w]+", sentence)
@@ -76,12 +76,15 @@ def predict_text(text_batch, dataset, model):
             )
         encoder_input = torch.cat((encoder_input, indexed_tokens), dim=0)
 
+    # to start with prediction we need to pass an initial decoder start token
     decoder_input = torch.LongTensor(
                     [[dataset.ch2ix[dataset.init_token]]]
             )
     
+    # we will predict first 10 tokens
     max_decode_len = 10
     source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
+    # first get output from encoder part 
     with torch.no_grad():
         encoder_output = model.encoder(
                 encoder_input, source_mask
@@ -95,12 +98,14 @@ def predict_text(text_batch, dataset, model):
                     target_mask,
                     source_mask,
                 )
+        # take token with maximum probability
         predicted_token = torch.argmax(
                     decoder_output[:, -1, :], dim=-1
                 ).unsqueeze(1)
-        decoder_input = torch.cat((decoder_input, predicted_token), dim=-1)
+        decoder_input = torch.cat((decoder_input, predicted_token), dim=-1) # add the predicted token to the existing decoder input
         source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
-
+    
+    # use decoder input to iterate as it has the predicted tokens 
     for output in decoder_input:
         output_string = ''
         for index in output:
@@ -130,4 +135,4 @@ predict_text_batch = ['This is going to be easy and the model will generate a pr
 
 for i in range(epochs):
     print("Epoch: {}/{}".format(i+1, train(model, train_dataloader, criterion, optimizer, clip)))
-    predict_text(predict_text_batch, dataset, model)
+    predict_test_text(predict_text_batch, dataset, model)

@@ -26,12 +26,15 @@ class BuildDataset:
     ):
         self.token_vocab = TokenVocabulary()
         self.pad_token = self.token_vocab.pad_token
+        self.init_token = self.token_vocab.init_token
+        self.eos_token = self.token_vocab.eos_token
         self.source_file = source_file
         self.target_file = target_file
 
         self.token_vocab.build_vocabulary(self.source_file, self.target_file)
         
         self.ch2ix = self.token_vocab.ch2ix
+        self.ix2ch = self.token_vocab.ix2ch
         self.vocab_size = len(set(self.token_vocab.ch2ix.values())) 
          
         self.tokenized_sentences = convert_source_target_list_to_tokens(

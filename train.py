@@ -55,6 +55,59 @@ def train(model, train_dataloader, criterion, optimizer, clip):
 
     return epoch_loss
 
+def predict_text(text_batch, dataset, model):
+    tokenized_sentences = []
+    for sentence in text_batch:
+        tokens = re.findall(r"\w+|[^\s\w]+", sentence)
+        tokenized_sentences.append(tokens)
+
+    max_length = max([len(tokens) for tokens in tokenized_sentences])
+    tokenized_sentences = [
+        t + ((max_length - len(t)) * [dataset.pad_token])
+        for t in tokenized_sentences
+    ] 
+
+    encoder_input = torch.empty((0, max_length + 2), dtype=torch.long)
+    for t in tokenized_sentences:
+        indexed_tokens = torch.LongTensor(
+                [[dataset.ch2ix[dataset.init_token]]
+                + [dataset.ch2ix[token] for token in t]
+                + [dataset.ch2ix[dataset.eos_token]]]
+            )
+        encoder_input = torch.cat((encoder_input, indexed_tokens), dim=0)
+
+    decoder_input = torch.LongTensor(
+                    [[dataset.ch2ix[dataset.init_token]]]
+            )
+    
+    max_decode_len = 10
+    source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
+    with torch.no_grad():
+        encoder_output = model.encoder(
+                encoder_input, source_mask
+            )
+
+    for i in range(max_decode_len):
+        with torch.no_grad():
+            decoder_output = model.decoder(
+                    decoder_input,
+                    encoder_output,
+                    target_mask,
+                    source_mask,
+                )
+        predicted_token = torch.argmax(
+                    decoder_output[:, -1, :], dim=-1
+                ).unsqueeze(1)
+        decoder_input = torch.cat((decoder_input, predicted_token), dim=-1)
+        source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
+
+    for output in decoder_input:
+        output_string = ''
+        for index in output:
+            character = dataset.ix2ch[index.item()]
+            output_string = output_string + character + ' '
+        print(output_string)
+
 dataset = BuildDataset(TokenVocabulary)
 
 train_dataloader, val_dataloader = prepare_dataloader(CustomDataset, dataset)
@@ -64,7 +117,8 @@ model = Transformer(source_dim=dataset.vocab_size,
                 max_len=dataset.max_len,
                 source_pad_idx=dataset.ch2ix[dataset.pad_token],
                 target_pad_idx=dataset.ch2ix[dataset.pad_token],
-                embedding_dim=128)
+                embedding_dim=128,
+                dropout_p=0.5)
 model.train()
 
 LEARNING_RATE = 0.0001
@@ -72,6 +126,8 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 criterion = nn.CrossEntropyLoss(ignore_index=dataset.ch2ix[dataset.pad_token])
 clip = 1
 epochs = 10
+predict_text_batch = ['This is going to be easy and the model will generate a prediction for this sentence.']
 
 for i in range(epochs):
     print("Epoch: {}/{}".format(i+1, train(model, train_dataloader, criterion, optimizer, clip)))
+    predict_text(predict_text_batch, dataset, model)

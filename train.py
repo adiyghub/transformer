@@ -110,7 +110,7 @@ def predict_test_text(text_batch, dataset, model):
     # use decoder input to iterate as it has the predicted tokens 
     for output in decoder_input:
         output_string = ''
-        for index in output:
+        for index in output[1:]:
             character = dataset.ix2ch[index.item()]
             output_string = output_string + character + ' '
         print(output_string)

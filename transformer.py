@@ -33,14 +33,14 @@ class Transformer(nn.Module):
         self.n_heads = n_heads
         self.qkv_dim = embedding_dim//n_heads
 
-        self.sequence_to_embedding = SequenceEmbedding(self.source_dim, embedding_dim, self.source_pad_idx, self.max_len, dropout_p)
+        self.sequence_to_embedding = SequenceEmbedding(self.source_dim, embedding_dim, self.source_pad_idx, self.max_len, dropout_p, self.device)
 
         self.encoder = Encoder(self.sequence_to_embedding, self.source_dim, embedding_dim, self.qkv_dim, n_heads, dropout_p)
         self.decoder = Decoder(self.sequence_to_embedding, self.target_dim, embedding_dim, self.qkv_dim, n_heads, dropout_p)
     
     def forward(self, source_sequence_batch, target_sequence_batch):
 
-        source_mask, target_mask = construct_mask(source_sequence_batch, target_sequence_batch, self.source_pad_idx, self.target_pad_idx)
+        source_mask, target_mask = construct_mask(source_sequence_batch, target_sequence_batch, self.source_pad_idx, self.target_pad_idx, self.device)
         
         source_sequence_batch = source_sequence_batch.to(self.device)
         target_sequence_batch = target_sequence_batch.to(self.device)

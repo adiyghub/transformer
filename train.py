@@ -41,13 +41,16 @@ def prepare_dataloader(CustomDataset, dataset, batch_size=128, train_val_split=0
 
     return train_dataloader, val_dataloader
 
-def train(model, train_dataloader, criterion, optimizer, clip):
+def train(model, device, train_dataloader, criterion, optimizer, clip):
     epoch_loss = 0
     for i, (X_batch, y_batch) in enumerate(train_dataloader):
+        X_batch = X_batch.to(device)
+        y_batch = y_batch.to(device)
         optimizer.zero_grad()
         output = model(X_batch, y_batch[:, :-1])
         output_dim = output.shape[-1]
         output = output.contiguous().view(-1, output_dim)
+        output = output.to(device)
         y_batch = y_batch[:, 1:].contiguous().view(-1)
         loss = criterion(output, y_batch)
         loss.backward()
@@ -119,13 +122,18 @@ dataset = BuildDataset(TokenVocabulary)
 
 train_dataloader, val_dataloader = prepare_dataloader(CustomDataset, dataset)
 
+device = (
+            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        )
+
 model = Transformer(source_dim=dataset.vocab_size,
                 target_dim=dataset.vocab_size,
                 max_len=dataset.max_len,
                 source_pad_idx=dataset.ch2ix[dataset.pad_token],
                 target_pad_idx=dataset.ch2ix[dataset.pad_token],
-                embedding_dim=512,
-                dropout_p=0.5)
+                embedding_dim=128,
+                dropout_p=0.5,
+                device=device).to(device)
 model.train()
 
 LEARNING_RATE = 0.0001
@@ -136,5 +144,5 @@ epochs = 10
 predict_text_batch = ['This is going to be easy and the model will generate a prediction for this sentence.']
 
 for i in range(epochs):
-    print("Epoch: {}/{}".format(i+1, train(model, train_dataloader, criterion, optimizer, clip)))
-    predict_test_text(predict_text_batch, dataset, model)
+    print("Epoch: {}/{}".format(i+1, train(model, device, train_dataloader, criterion, optimizer, clip)))
+    # predict_test_text(predict_text_batch, dataset, model)

@@ -124,7 +124,7 @@ model = Transformer(source_dim=dataset.vocab_size,
                 max_len=dataset.max_len,
                 source_pad_idx=dataset.ch2ix[dataset.pad_token],
                 target_pad_idx=dataset.ch2ix[dataset.pad_token],
-                embedding_dim=128,
+                embedding_dim=512,
                 dropout_p=0.5)
 model.train()
 

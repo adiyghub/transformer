@@ -6,6 +6,7 @@ from sequence_embedding import SequenceEmbedding
 from encoder import Encoder
 from decoder import Decoder
 from utils import construct_mask
+from typing import Optional
 
 class Transformer(nn.Module):
     def __init__(self, source_dim, 
@@ -15,11 +16,13 @@ class Transformer(nn.Module):
                        target_pad_idx,
                        embedding_dim=512, 
                        n_heads=8, 
-                       dropout_p=0.1):
+                       dropout_p=0.1,
+                       device: Optional[torch.device] = None):
         super(Transformer, self).__init__()
 
         assert embedding_dim % n_heads == 0, "n_heads should divide embedding_dim"
 
+        self.device = device
         self.source_dim = source_dim
         self.target_dim = target_dim
         self.max_len = max_len
@@ -38,6 +41,11 @@ class Transformer(nn.Module):
     def forward(self, source_sequence_batch, target_sequence_batch):
 
         source_mask, target_mask = construct_mask(source_sequence_batch, target_sequence_batch, self.source_pad_idx, self.target_pad_idx)
+        
+        source_sequence_batch = source_sequence_batch.to(self.device)
+        target_sequence_batch = target_sequence_batch.to(self.device)
+        source_mask = source_mask.to(self.device)
+        target_mask = target_mask.to(self.device)
         
         # Perform multi-head self-attention on the source
         source_encoder_output = self.encoder(source_sequence_batch, source_mask)

@@ -91,10 +91,6 @@ def predict_test_text(text_batch, dataset, model, device):
     # we will predict first 10 tokens
     max_decode_len = 10
     source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token], device)
-    print(source_mask.device)
-    print(target_mask.device)
-    print(encoder_input.device)
-    print("shshha ")
     # first get output from encoder part 
     with torch.no_grad():
         encoder_output = model.encoder(

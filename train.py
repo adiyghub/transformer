@@ -60,7 +60,7 @@ def train(model, device, train_dataloader, criterion, optimizer, clip):
 
     return epoch_loss
 
-def predict_test_text(text_batch, dataset, model):
+def predict_test_text(text_batch, dataset, model, device):
     tokenized_sentences = []
     for sentence in text_batch:
         tokens = re.findall(r"\w+|[^\s\w]+", sentence)
@@ -85,10 +85,16 @@ def predict_test_text(text_batch, dataset, model):
     decoder_input = torch.LongTensor(
                     [[dataset.ch2ix[dataset.init_token]]]
             )
+    decoder_input = decoder_input.to(device)
+    encoder_input = encoder_input.to(device)
     
     # we will predict first 10 tokens
     max_decode_len = 10
-    source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
+    source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token], device)
+    print(source_mask.device)
+    print(target_mask.device)
+    print(encoder_input.device)
+    print("shshha ")
     # first get output from encoder part 
     with torch.no_grad():
         encoder_output = model.encoder(
@@ -108,7 +114,7 @@ def predict_test_text(text_batch, dataset, model):
                     decoder_output[:, -1, :], dim=-1
                 ).unsqueeze(1)
         decoder_input = torch.cat((decoder_input, predicted_token), dim=-1) # add the predicted token to the existing decoder input
-        source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token])
+        source_mask, target_mask = construct_mask(encoder_input, decoder_input, dataset.ch2ix[dataset.pad_token], dataset.ch2ix[dataset.pad_token], device)
     
     # use decoder input to iterate as it has the predicted tokens 
     for output in decoder_input:
@@ -131,7 +137,7 @@ model = Transformer(source_dim=dataset.vocab_size,
                 max_len=dataset.max_len,
                 source_pad_idx=dataset.ch2ix[dataset.pad_token],
                 target_pad_idx=dataset.ch2ix[dataset.pad_token],
-                embedding_dim=128,
+                embedding_dim=512,
                 dropout_p=0.5,
                 device=device).to(device)
 model.train()
@@ -145,4 +151,4 @@ predict_text_batch = ['This is going to be easy and the model will generate a pr
 
 for i in range(epochs):
     print("Epoch: {}/{}".format(i+1, train(model, device, train_dataloader, criterion, optimizer, clip)))
-    # predict_test_text(predict_text_batch, dataset, model)
+    predict_test_text(predict_text_batch, dataset, model, device)

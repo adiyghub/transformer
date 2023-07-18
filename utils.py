@@ -9,7 +9,6 @@ def construct_mask(source, target, source_pad_idx, target_pad_idx, device: Optio
     target_length = target.shape[1]
     target_sequence_mask = torch.tril(torch.ones((target_length, target_length))).bool()
     target_sequence_mask = target_sequence_mask.to(device)
-
     target_mask = target_sequence_mask & target_pad_mask
 
     
